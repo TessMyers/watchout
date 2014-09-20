@@ -12,13 +12,31 @@ var getRandom = function(min, max){
   return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+var dragmove = function(d) {
+  console.log('calling dragmove')
+      var x = d3.event.x - 350;
+      var y = d3.event.y - 300;
+      d3.select(this)
+      .attr("transform", "translate(" + x + "," + y + ")");
+}
+
+var drag = d3.behavior.drag()
+    .on("drag", dragmove);
+
 // CONSTRUCTOR PROTOTYPES
+
+var Player = function(){
+  this.size = 8;
+  this.color = "orange";
+  this.startingPointY = 300;
+  this.startingPointX = 350;
+}
 
 var Enemy = function(){
   this.size = getRandom(8, 10);
-  this.color = 'black',
-  this.startingPointY = getRandom(10, 570) // TODO: x is longer than 600px
-  this.startingPointX = getRandom(10, 690)
+  this.color = 'black';
+  this.startingPointY = getRandom(10, 590);  // TODO: x is longer than 600px
+  this.startingPointX = getRandom(10, 690);
   // TODO: add a move around method
 }
 
@@ -35,16 +53,16 @@ var makeEnemies = function(armySize){
   return enemies;
 }
 
-//PlACE ENEMIES
+//PlACE ITEMS
 
-var placeEnemies = function(enemyHorde){
+var placePlayers = function(enemyHorde, player){
 
   var SVG = d3.select('.arena')
     .append('svg')
     .attr('height', 600)
-    .attr('width',715)
+    .attr('width',700)
 
-  SVG.selectAll('.stuff')
+  SVG.selectAll('.enemyPlane')
     .data( enemyHorde )
     .enter()
     .append('circle')
@@ -52,12 +70,23 @@ var placeEnemies = function(enemyHorde){
     .attr('r', function(d){ return d.size; })
     .attr('cy', function(d){ return d.startingPointY; })
     .attr('cx', function(d){ return d.startingPointX; })
-    //.style('height', function(d){ return d.radius + 'px'; })
     .style('fill', function(d){ return d.color; })
+
+  SVG.selectAll('.enemyPlane')
+    .data( player )
+    .enter()
+    .append('circle')
+    .attr('class', 'player')
+    .attr('r', function(d){ return d.size; })
+    .attr('cy', function(d){ return d.startingPointY; })
+    .attr('cx', function(d){ return d.startingPointX; })
+    .style('fill', function(d){ return d.color; })
+    .call(drag)
+
+    //TODO: refactor?
 }
 
-
-// Move enemies
+// MOVE ENEMIES
 
 var nextMovement = function(armySize){
   armySize = armySize || 30;
@@ -65,7 +94,7 @@ var nextMovement = function(armySize){
   var orders = [];
 
   for (var i = 0; i < armySize; i++) {
-     orders.push({ "x": getRandom(10, 690), "y": getRandom(10, 570) });
+     orders.push({ "x": getRandom(10, 690), "y": getRandom(10, 590) });
   }
   return orders;
 }
@@ -76,18 +105,23 @@ var moveEnemies = function(){
 
   d3.select('.arena').selectAll('.enemy')
     .data( orders )
+    .transition()
+    .duration(2000)
     .attr('cx', function(d){ return d.x; })
     .attr('cy', function(d){ return d.y; })
 
 }
 
-
+// INITIALIZE
 
 var initialize = function(level){
   level = level || 1
 
+  var player = [new Player];
   var attackers = makeEnemies();
-  placeEnemies(attackers);
+
+  placePlayers(attackers, player);
+
 
   setInterval(moveEnemies,2000);
 }

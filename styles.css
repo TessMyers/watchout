@@ -4,12 +4,9 @@
 Feel free to use it if you like. */
 
 
-.arena {
-  margin-top: 8%;
-  margin-bottom: 5%;
-  margin-left: 20%;
-  margin-right: 20%;
-  height: 600px;
+svg {
 
+  margin-left: 30%;
+  margin-right: 30%;
   border: 5px solid black;
 }
