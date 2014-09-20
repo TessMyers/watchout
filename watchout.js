@@ -6,22 +6,77 @@
 
 //TODO: keep track of level, pass into makeEnemies to increase num of enemies as level goes up
 
+// GLOBAL VARIABLES
+
+var drag = d3.behavior.drag()
+    .on("drag", dragmove);
+
+var highScore = 0;
+
+var currentScore = 0;
+
+var collisions = 0;
+
 // HELPER FUNCTIONS
 
 var getRandom = function(min, max){
   return Math.floor(Math.random()*(max-min+1)+min);
 }
 
-var dragmove = function(d) {
-  console.log('calling dragmove')
-      var x = d3.event.x - 350;
-      var y = d3.event.y - 300;
-      d3.select(this)
-      .attr("transform", "translate(" + x + "," + y + ")");
+var maintain = function(){
+
+  currentScore++;
+
+  d3.selectAll('.current').text('Current Score: ' + currentScore);
+  d3.selectAll('.high').text('High Score: ' + highScore);
+  d3.selectAll('.collisions').text('Collisions: ' + collisions);
+
 }
 
-var drag = d3.behavior.drag()
-    .on("drag", dragmove);
+var dragmove = function(d) {
+  console.log('calling dragmove')
+      var x = d3.event.x; //- 350;
+      var y = d3.event.y; //- 300;
+      d3.select(this)
+      .attr('cx', x)
+      .attr('cy', y)
+}
+
+
+var checkCollisions = function(){
+
+  var PTop = parseInt(d3.selectAll('.player').attr('cy'));
+  var PLeft = parseInt(d3.selectAll('.player').attr('cx'));
+  var PBottom = parseInt(PTop) + parseInt(d3.selectAll('.player').attr('r'));
+  var PRight = parseInt(PLeft) + parseInt(d3.selectAll('.player').attr('r'));
+
+
+  var enemyPositions = getEnemyPositions(); // returns an array of tuplets, 0 = x, 1 = y, 3 = r
+
+  for (var i = 0; i < enemyPositions.length; i++) {
+
+    var ETop = parseInt(enemyPositions[i].y);
+    var ELeft = parseInt(enemyPositions[i].x);
+    var EBottom = parseInt(ETop) + parseInt(enemyPositions[i].r);
+    var ERight = parseInt(ELeft) + parseInt(enemyPositions[i].r);
+
+    var topOverlap = (EBottom >= PTop && EBottom <= PBottom);
+    var bottomOverlap = (ETop <= PBottom && ETop >= PTop);
+    var leftOverlap = (ERight >= PLeft && ERight <= PRight);
+    var rightOverlap = (ELeft <= PRight && ELeft >= PLeft);
+
+   if ((topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
+    // BOOM COLLISION *esplosions*
+    console.log('ESPLOSION!!!');
+    collisions++;
+    if( currentScore > highScore ){
+      highScore = currentScore;
+    }
+    currentScore = 0;
+   }
+  }
+}
+
 
 // CONSTRUCTOR PROTOTYPES
 
@@ -33,7 +88,7 @@ var Player = function(){
 }
 
 var Enemy = function(){
-  this.size = getRandom(8, 10);
+  this.size = getRandom(8, 8);
   this.color = 'black';
   this.startingPointY = getRandom(10, 590);  // TODO: x is longer than 600px
   this.startingPointX = getRandom(10, 690);
@@ -51,6 +106,24 @@ var makeEnemies = function(armySize){
     enemies.push(new Enemy);
   }
   return enemies;
+}
+
+
+var getEnemyPositions = function(){
+  // returns an array of enemies or their positions. 0 = x 1 = y 2= r
+  var positions = [];
+
+  var horde = d3.selectAll('.enemy')
+  horde.each(function(d, i){
+    var enemy = {};
+
+    enemy.x = d3.select(this).attr('cx')
+    enemy.y = d3.select(this).attr('cy')
+    enemy.r = d3.select(this).attr('r')
+
+    positions.push(enemy);
+  })
+  return positions;
 }
 
 //PlACE ITEMS
@@ -124,6 +197,9 @@ var initialize = function(level){
 
 
   setInterval(moveEnemies,2000);
+  setInterval(checkCollisions,10);
+
+  setInterval(maintain, 50)
 }
 
 initialize();
