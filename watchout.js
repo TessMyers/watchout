@@ -67,7 +67,6 @@ var checkCollisions = function(){
 
    if ((topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
     // BOOM COLLISION *esplosions*
-    console.log('ESPLOSION!!!');
     collisions++;
     if( currentScore > highScore ){
       highScore = currentScore;
