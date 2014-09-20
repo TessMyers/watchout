@@ -7,15 +7,19 @@
 //TODO: keep track of level, pass into makeEnemies to increase num of enemies as level goes up
 
 // GLOBAL VARIABLES
+//TODO make these private
 
 var drag = d3.behavior.drag()
     .on("drag", dragmove);
+
 
 var highScore = 0;
 
 var currentScore = 0;
 
 var collisions = 0;
+
+//var _check = setInterval(checkCollisions,10);
 
 // HELPER FUNCTIONS
 
@@ -51,7 +55,7 @@ var checkCollisions = function(){
   var PRight = parseInt(PLeft) + parseInt(d3.selectAll('.player').attr('r'));
 
 
-  var enemyPositions = getEnemyPositions(); // returns an array of tuplets, 0 = x, 1 = y, 3 = r
+  var enemyPositions = getEnemyPositions();
 
   for (var i = 0; i < enemyPositions.length; i++) {
 
@@ -67,7 +71,9 @@ var checkCollisions = function(){
 
    if ((topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
     // BOOM COLLISION *esplosions*
-    collisions++;
+
+    //handleCollision();
+
     if( currentScore > highScore ){
       highScore = currentScore;
     }
@@ -75,6 +81,16 @@ var checkCollisions = function(){
    }
   }
 }
+
+// var handleCollision = function(){
+
+//   clearInterval(_check);
+
+//   collisions++;
+
+//   setTimeout(_check,50); // decrease time? remove setTimeout?
+
+// }
 
 
 // CONSTRUCTOR PROTOTYPES
@@ -194,17 +210,13 @@ var initialize = function(level){
 
   placePlayers(attackers, player);
 
-
   setInterval(moveEnemies,2000);
   setInterval(checkCollisions,10);
 
+  //_check;
   setInterval(maintain, 50)
 }
 
 initialize();
-
-
-
-
 
 
