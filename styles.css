@@ -1,5 +1,15 @@
 /* your beautiful css styling goes here! */
 
-/* Note: an asteroid image is included in this repo. 
+/* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
 
+
+.arena {
+  margin-top: 8%;
+  margin-bottom: 5%;
+  margin-left: 20%;
+  margin-right: 20%;
+  height: 600px;
+
+  border: 5px solid black;
+}
