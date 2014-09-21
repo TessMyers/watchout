@@ -1,31 +1,32 @@
-// start slingin' some d3 here.
+// TODO: Add features
+  // user control of color, etc
+  // add levels. as levels go up enemies increase
+  //make prettier. change images?
+  // more comments
+  // ???
+  // profit
 
-// making enemies:
-// make one circle with a random radius between two sizes. place randomly
-// make them move. find an animate method.
-
-//TODO: keep track of level, pass into makeEnemies to increase num of enemies as level goes up
+//By Tess Myers and Richard Guan, Hack Reactor HR19  2014.
+//Blantantly copied from that collider game.
 
 // GLOBAL VARIABLES
-//TODO make these private
 
-var dragmove = function(d) {
-  console.log('calling dragmove')
-      var x = d3.event.x; //- 350;
-      var y = d3.event.y; //- 300;
-      d3.select(this)
-      .attr('cx', x)
-      .attr('cy', y)
+var dragmove = function() {
+  var x = d3.event.x; //- 350;
+  var y = d3.event.y; //- 300;
+  d3.select(this)
+  .attr('cx', x)
+  .attr('cy', y)
 }
 
-var drag = d3.behavior.drag()
+var _drag = d3.behavior.drag()
     .on("drag", dragmove);
 
-var highScore = 0;
+var _highScore = 0;
 
-var currentScore = 0;
+var _currentScore = 0;
 
-var collisions = 0;
+var _collisions = 0;
 
 var _check = setInterval(checkCollisions,10);
 
@@ -39,23 +40,22 @@ var getRandom = function(min, max){
 
 var maintain = function(){
 
-  currentScore++;
+  _currentScore++;
 
-  _vulnerability += 10
+  _vulnerability += 10;
 
-  d3.selectAll('.current').text('Current Score: ' + currentScore);
-  d3.selectAll('.high').text('High Score: ' + highScore);
-  d3.selectAll('.collisions').text('Collisions: ' + collisions);
+  d3.selectAll('.current').text('Current Score: ' + _currentScore);
+  d3.selectAll('.high').text('High Score: ' + _highScore);
+  d3.selectAll('.collisions').text('Collisions: ' + _collisions);
 
 }
 
 var dragmove = function(d) {
-  console.log('calling dragmove')
-      var x = d3.event.x; //- 350;
-      var y = d3.event.y; //- 300;
-      d3.select(this)
-      .attr('cx', x)
-      .attr('cy', y)
+  var x = d3.event.x; //- 350;
+  var y = d3.event.y; //- 300;
+  d3.select(this)
+  .attr('cx', x)
+  .attr('cy', y)
 }
 
 
@@ -65,7 +65,6 @@ var checkCollisions = function(){
   var PLeft = parseInt(d3.selectAll('.player').attr('cx'));
   var PBottom = parseInt(PTop) + parseInt(d3.selectAll('.player').attr('r'));
   var PRight = parseInt(PLeft) + parseInt(d3.selectAll('.player').attr('r'));
-
 
   var enemyPositions = getEnemyPositions();
 
@@ -81,31 +80,19 @@ var checkCollisions = function(){
     var leftOverlap = (ERight >= PLeft && ERight <= PRight);
     var rightOverlap = (ELeft <= PRight && ELeft >= PLeft);
 
-   if (_vulnerability >= 100 && (topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
-    // BOOM COLLISION *esplosions*
-    collisions++
-    _vulnerability = 0;
+    if (_vulnerability >= 100 && (topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
+      // BOOM COLLISION *esplosions*
+      _collisions++
+      _vulnerability = 0;
 
+      if( _currentScore > _highScore ){
+        _highScore = _currentScore;
+      }
 
-
-    if( currentScore > highScore ){
-      highScore = currentScore;
+      _currentScore = 0;
     }
-    currentScore = 0;
-   }
   }
 }
-
-// var handleCollision = function(){
-//   console.log('handling collision')
-
-//   clearInterval(_check);
-
-//   collisions++;
-
-//   setTimeout(checkCollisions,50); // decrease time? remove setTimeout?
-
-// }
 
 
 // CONSTRUCTOR PROTOTYPES
@@ -122,7 +109,7 @@ var Enemy = function(){
   this.color = 'black';
   this.startingPointY = getRandom(10, 590);  // TODO: x is longer than 600px
   this.startingPointX = getRandom(10, 690);
-  // TODO: add a move around method
+
 }
 
 //MAKE ENEMIES
@@ -140,7 +127,7 @@ var makeEnemies = function(armySize){
 
 
 var getEnemyPositions = function(){
-  // returns an array of enemies or their positions. 0 = x 1 = y 2= r
+
   var positions = [];
 
   var horde = d3.selectAll('.enemy')
@@ -152,7 +139,7 @@ var getEnemyPositions = function(){
     enemy.r = d3.select(this).attr('r')
 
     positions.push(enemy);
-  })
+  });
   return positions;
 }
 
@@ -184,9 +171,9 @@ var placePlayers = function(enemyHorde, player){
     .attr('cy', function(d){ return d.startingPointY; })
     .attr('cx', function(d){ return d.startingPointX; })
     .style('fill', function(d){ return d.color; })
-    .call(drag)
+    .call(_drag)
 
-    //TODO: refactor?
+    //TODO: refactor for less copyPasta
 }
 
 // MOVE ENEMIES
@@ -218,7 +205,7 @@ var moveEnemies = function(){
 // INITIALIZE
 
 var initialize = function(level){
-  level = level || 1
+  level = level || 1;
 
   var player = [new Player];
   var attackers = makeEnemies();
