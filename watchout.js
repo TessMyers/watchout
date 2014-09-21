@@ -9,9 +9,17 @@
 // GLOBAL VARIABLES
 //TODO make these private
 
+var dragmove = function(d) {
+  console.log('calling dragmove')
+      var x = d3.event.x; //- 350;
+      var y = d3.event.y; //- 300;
+      d3.select(this)
+      .attr('cx', x)
+      .attr('cy', y)
+}
+
 var drag = d3.behavior.drag()
     .on("drag", dragmove);
-
 
 var highScore = 0;
 
@@ -19,7 +27,9 @@ var currentScore = 0;
 
 var collisions = 0;
 
-//var _check = setInterval(checkCollisions,10);
+var _check = setInterval(checkCollisions,10);
+
+var _vulnerability = 100;
 
 // HELPER FUNCTIONS
 
@@ -30,6 +40,8 @@ var getRandom = function(min, max){
 var maintain = function(){
 
   currentScore++;
+
+  _vulnerability += 10
 
   d3.selectAll('.current').text('Current Score: ' + currentScore);
   d3.selectAll('.high').text('High Score: ' + highScore);
@@ -69,10 +81,12 @@ var checkCollisions = function(){
     var leftOverlap = (ERight >= PLeft && ERight <= PRight);
     var rightOverlap = (ELeft <= PRight && ELeft >= PLeft);
 
-   if ((topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
+   if (_vulnerability >= 100 && (topOverlap || bottomOverlap) && (leftOverlap || rightOverlap)){
     // BOOM COLLISION *esplosions*
+    collisions++
+    _vulnerability = 0;
 
-    //handleCollision();
+
 
     if( currentScore > highScore ){
       highScore = currentScore;
@@ -83,12 +97,13 @@ var checkCollisions = function(){
 }
 
 // var handleCollision = function(){
+//   console.log('handling collision')
 
 //   clearInterval(_check);
 
 //   collisions++;
 
-//   setTimeout(_check,50); // decrease time? remove setTimeout?
+//   setTimeout(checkCollisions,50); // decrease time? remove setTimeout?
 
 // }
 
@@ -213,7 +228,6 @@ var initialize = function(level){
   setInterval(moveEnemies,2000);
   setInterval(checkCollisions,10);
 
-  //_check;
   setInterval(maintain, 50)
 }
 
